@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-
+#the site used to download the videos
 DOWNLOADER = "https://ytmp3.nu/0/youtube-to-mp3"
 
 #folders to check for already downloaded files
