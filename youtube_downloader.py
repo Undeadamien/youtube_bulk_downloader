@@ -9,7 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 DOWNLOADER = "https://ytmp3.nu/0/youtube-to-mp3"
 
-#folders to check for already downloaded file
+#folders to check for already downloaded files
 DESTINATION_FOLDERS = ["C:\\Users\\Damien\\Downloads", 
                        "C:\\Users\\Damien\\Music", 
                        "C:\\Users\\Damien\\Desktop\\DRAWING_\\Documentation"]
@@ -31,7 +31,7 @@ def link_collector(folder):
 
 
 def download(link, format_):
-
+	
     DRIVER = webdriver.Chrome()
     WAIT = WebDriverWait(DRIVER, 10)
     DRIVER.get(DOWNLOADER)
@@ -50,13 +50,10 @@ def download(link, format_):
     DRIVER.find_element(By.XPATH, '//*[@id="download"]/a[1]').click()
 
     def wait_until_file_downloaded():
-
-        for file_ in listdir(DESTINATION_FOLDERS[0]):  # check the downloads folder 
+        for file_ in listdir(DESTINATION_FOLDERS[0]):
             if "crdownload" in file_.lower():
-
                 sleep(5)
                 wait_until_file_downloaded()
-
     wait_until_file_downloaded()
 
 
@@ -95,11 +92,8 @@ def main():
     for folder in URL_FOLDERS:
         for link in link_collector(folder):
 
-            if "mp3" in folder:
-                download(link, "mp3")
-
-            elif "mp4" in folder:
-                download(link, "mp4")
+            if "mp3" in folder: download(link, "mp3")
+            elif "mp4" in folder: download(link, "mp4")
 
     delete_used_urls()  #clean up
 
