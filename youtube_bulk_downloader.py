@@ -1,6 +1,11 @@
-from time import sleep
+"""
+A script that automate the downloading of video from
+https://ytmp3.nu/0/youtube-to-mp3
+"""
 from os import listdir, remove
 from os.path import dirname, join
+from time import sleep
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -17,49 +22,48 @@ URL_FOLDERS = [join(dirname(__file__), "urls_to_download\\mp3"),
 
 
 def link_collector(folder):
-
+    """Return the url link of every url shortcuts"""
     for file_ in listdir(folder):
         if file_.lower().endswith(".url"):
-
             with open(f"{folder}\\{file_}", "r", encoding="utf-8") as shortcut:
-
                 for line in shortcut:
                     if line.startswith("URL"):
                         yield line[4:-1]
 
 
 def download(link, format_):
+    """Automate the interaction with the site"""
+    driver = webdriver.Chrome()
+    wait = WebDriverWait(driver, 10)
+    driver.get(DOWNLOADER)
 
-    DRIVER = webdriver.Chrome()
-    WAIT = WebDriverWait(DRIVER, 10)
-    DRIVER.get(DOWNLOADER)
-
-    WAIT.until(EC.visibility_of_element_located
+    wait.until(EC.visibility_of_element_located
                ((By.XPATH, '//*[@id="url"]')))
-    DRIVER.find_element(By.XPATH, '//*[@id="url"]').send_keys(link)
+    driver.find_element(By.XPATH, '//*[@id="url"]').send_keys(link)
 
     if format_ == "mp4":
-        WAIT.until(EC.visibility_of_element_located
+        wait.until(EC.visibility_of_element_located
                    ((By.XPATH, '//*[@id="format"]')))
-        DRIVER.find_element(By.XPATH, '//*[@id="format"]').click()
+        driver.find_element(By.XPATH, '//*[@id="format"]').click()
 
-    WAIT.until(EC.visibility_of_element_located
+    wait.until(EC.visibility_of_element_located
                ((By.XPATH, '//*[@id="form"]/form/input[3]')))
-    DRIVER.find_element(By.XPATH, '//*[@id="form"]/form/input[3]').click()
+    driver.find_element(By.XPATH, '//*[@id="form"]/form/input[3]').click()
 
-    WAIT.until(EC.visibility_of_element_located
+    wait.until(EC.visibility_of_element_located
                ((By.XPATH, '//*[@id="download"]/a[1]')))
-    DRIVER.find_element(By.XPATH, '//*[@id="download"]/a[1]').click()
+    driver.find_element(By.XPATH, '//*[@id="download"]/a[1]').click()
 
     def wait_until_file_downloaded():
-
-        # check the downloads folder
+        """
+        Call it self recursively every 5s,
+        as long as there is a file downloading
+        otherwise the driver would close
+        """
+        sleep(5)
         for file_ in listdir(DESTINATION_FOLDERS[0]):
             if "crdownload" in file_.lower():
-
-                sleep(5)
                 wait_until_file_downloaded()
-
     wait_until_file_downloaded()
 
 
@@ -71,11 +75,10 @@ def delete_used_urls():
     """
 
     def simplified_title(title):
-
+        """Simplify the title keeping only the words, return a list"""
         for element_to_delete in ["-", "(", ")", "[", "]", ".mp3", ".mp4"]:
             title = title.replace(element_to_delete, "")
         title = title.split()
-
         return title
 
     for url_folder in URL_FOLDERS:
@@ -95,18 +98,19 @@ def delete_used_urls():
 
 
 def main():
+    """
+    Deleted already used urls,
+    then download every urls from both folder one by one
+    and finally delete used urls
+    """
 
     delete_used_urls()  # to avoid duplicates
-
     for folder in URL_FOLDERS:
         for link in link_collector(folder):
-
             if "mp3" in folder:
                 download(link, "mp3")
-
             elif "mp4" in folder:
                 download(link, "mp4")
-
     delete_used_urls()  # clean up
 
 
